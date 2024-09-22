@@ -171,6 +171,8 @@ while [[ 1 ]]; do
         banka
     elif [[ "$input" = "D" ]]; then
         dalsi_kolo
+    elif [[ "$input" = "E" ]]; then
+        exit
     else
         echo -e "ERROR: Nesprávné zadání!\n"
     fi
