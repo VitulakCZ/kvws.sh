@@ -146,7 +146,7 @@ while true; do
         echo -e "EASY obtížnost\n- Začínáte s 3 mld. penězi\n- Začínáte s 2000 vojáky\n- Dokud neinvestujete, získáváte 2 mld. peněz za kolo\n- Chcete-li vyhrát, musíte získat 30 území\n- Investovat můžete do 10 peněz za kolo\n- Invaze do vaší země se konají každých 10 kol\n- Invaze jsou vždy po 1000 vojácích"
         penize=3
         vojaci=2000
-        obsadit=1 #30
+        obsadit=30
         break
 
     elif [[ $obtiznost = "N" ]]; then
