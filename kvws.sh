@@ -1,4 +1,7 @@
 #!/bin/bash
+IS_APLAY=$(hash aplay 2>/dev/null; echo $?)
+KVWS_SOUNDTRACK=0
+TETICKA_SOUNDTRACK=0
 
 penize=0
 vojaci=0
@@ -7,6 +10,11 @@ kola=1
 obsadit=0
 banka=0
 penize_za_kolo=2
+
+zabit_soundtrack () {
+    local PID=$1
+    [ $IS_APLAY = 0 ] && kill $PID $((PID + 1))
+}
 
 koupit_vojaky () {
     echo -n "Máš $vojaci vojáků, peněz $penize, cena za 1000 vojáků je 1 mld. Kolik jich chceš koupit? "
@@ -37,8 +45,14 @@ valka () {
             obsadit=$((obsadit - 1))
             echo "Zaútočil jsi! Zbývá ti $vojaci vojáků."
             if [[ $obsadit == 0 ]]; then
+                zabit_soundtrack $KVWS_SOUNDTRACK
+                if [ $IS_APLAY = 0 ]; then
+                    bash -c "while true; do aplay -q \"teticka_song.wav\" >/dev/null 2>&1; done" &
+                    TETICKA_SOUNDTRACK=$!
+                fi
                 echo -en "GRATULACE!!! Dohrál jsi hru!! Jsi dobrý!!\nStiskem ENTER pokračuj: "
                 read -r
+                zabit_soundtrack $TETICKA_SOUNDTRACK
                 exit 0
             fi
         fi
@@ -132,7 +146,7 @@ while true; do
         echo -e "EASY obtížnost\n- Začínáte s 3 mld. penězi\n- Začínáte s 2000 vojáky\n- Dokud neinvestujete, získáváte 2 mld. peněz za kolo\n- Chcete-li vyhrát, musíte získat 30 území\n- Investovat můžete do 10 peněz za kolo\n- Invaze do vaší země se konají každých 10 kol\n- Invaze jsou vždy po 1000 vojácích"
         penize=3
         vojaci=2000
-        obsadit=30
+        obsadit=1 #30
         break
 
     elif [[ $obtiznost = "N" ]]; then
@@ -151,9 +165,15 @@ while true; do
     fi
 done
 
-
 echo -n "Stiskem ENTER pokračuj: "
 read -r
+
+if [ $IS_APLAY = 1 ]; then
+    echo "UPOZORNĚNÍ: Příkaz aplay nebyl nalezen. Zvuk nebude fungovat."
+else
+    bash -c "while true; do aplay -q \"kv_war_simulator_soundtrack.wav\" >/dev/null 2>&1; done" &
+    KVWS_SOUNDTRACK=$!
+fi
 
 echo -e "Toto je vylepšená verze hry textova_hra.py. Jestli chcete mít zážitek ze hry textova_hra, jako takový, stáhněte si KV OS BETA 0.6.\n"
 while true; do
@@ -172,6 +192,7 @@ while true; do
     elif [[ $input = "D" ]]; then
         dalsi_kolo
     elif [[ $input = "E" ]]; then
+        zabit_soundtrack $KVWS_SOUNDTRACK
         exit
     else
         echo -e "ERROR: Nesprávné zadání!\n"
