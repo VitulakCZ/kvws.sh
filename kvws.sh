@@ -1,5 +1,6 @@
 #!/bin/bash
 IS_APLAY=$(hash aplay 2>/dev/null; echo $?)
+IS_KILLALL=$(hash killall 2>/dev/null; echo $?)
 KVWS_SOUNDTRACK=0
 TETICKA_SOUNDTRACK=0
 
@@ -13,7 +14,7 @@ penize_za_kolo=2
 
 zabit_soundtrack () {
     local PID=$1
-    [ $IS_APLAY = 0 ] && kill $PID $((PID + 1))
+    [ "$IS_APLAY" = 0 ] && kill "$PID" && killall aplay
 }
 
 koupit_vojaky () {
@@ -46,7 +47,7 @@ valka () {
             echo "Zaútočil jsi! Zbývá ti $vojaci vojáků."
             if [[ $obsadit == 0 ]]; then
                 zabit_soundtrack $KVWS_SOUNDTRACK
-                if [ $IS_APLAY = 0 ]; then
+                if [ "$IS_APLAY" = 0 ]; then
                     bash -c "while true; do aplay -q \"teticka_song.wav\" >/dev/null 2>&1; done" &
                     TETICKA_SOUNDTRACK=$!
                 fi
@@ -168,8 +169,11 @@ done
 echo -n "Stiskem ENTER pokračuj: "
 read -r
 
-if [ $IS_APLAY = 1 ]; then
+if [ "$IS_APLAY" = 1 ]; then
     echo "UPOZORNĚNÍ: Příkaz aplay nebyl nalezen. Zvuk nebude fungovat."
+elif [ "$IS_KILLALL" = 1 ]; then
+    echo "UPOZORNĚNÍ: Příkaz killall nebyl nalezen. Zvuk nebude fungovat."
+    IS_APLAY=1
 else
     bash -c "while true; do aplay -q \"kv_war_simulator_soundtrack.wav\" >/dev/null 2>&1; done" &
     KVWS_SOUNDTRACK=$!
